@@ -1,4 +1,7 @@
 /backend/node_modules/
 /frontend/node_modules/
-.idea
+/.idea
 /.idea/sonarlint
+/backend/.env.dev
+/backend/.env.test
+/backend/.env.prod
