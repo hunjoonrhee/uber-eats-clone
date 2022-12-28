@@ -6,6 +6,9 @@ import {
   CreateAccountOutput
 } from './dtos/create-account.dto';
 import {LoginInput, LoginOutput} from './dtos/login.dto';
+import {AuthGuard} from '../auth/auth.guard';
+import {UseGuards} from '@nestjs/common';
+import {AuthUserDecorator} from '../auth/auth-user.decorator';
 
 @Resolver((of) => User)
 export class UsersResolver {
@@ -41,5 +44,11 @@ export class UsersResolver {
         error: e
       };
     }
+  }
+
+  @Query((returns) => User)
+  @UseGuards(AuthGuard)
+  me(@AuthUserDecorator() authUser: User) {
+    return authUser;
   }
 }
