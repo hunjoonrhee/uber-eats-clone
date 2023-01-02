@@ -2,45 +2,66 @@ import {InjectRepository} from '@nestjs/typeorm';
 import {User} from './entities/user.entity';
 import {Injectable} from '@nestjs/common';
 import {Repository} from 'typeorm';
-import {CreateAccountInput} from './dtos/create-account.dto';
-import {LoginInput} from './dtos/login.dto';
+import {
+  CreateAccountInput,
+  CreateAccountOutput
+} from './dtos/create-account.dto';
+import {LoginInput, LoginOutput} from './dtos/login.dto';
 import {JwtService} from '../jwt/jwt.service';
-import {EditProfileInput} from './dtos/edit-profile.dto';
+import {EditProfileInput, EditProfileOutput} from './dtos/edit-profile.dto';
+import {Verification} from './entities/verification.entity';
+import {UserProfileOutput} from './dtos/use-profile.dto';
+import {VerifyEmailOutput} from './dtos/verify-email.dto';
+import {MailService} from '../mail/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepo: Repository<User>,
-    private readonly jwtService: JwtService
+    @InjectRepository(Verification)
+    private readonly verificationRepo: Repository<Verification>,
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailService
   ) {}
 
   async createAccount({
     email,
     password,
     role
-  }: CreateAccountInput): Promise<[boolean, string?]> {
+  }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
       const exists = await this.usersRepo.findOneBy({email});
       if (exists) {
-        return [false, 'There is a user with that email already'];
+        return {
+          ok: false,
+          error: 'There is a user with that email already'
+        };
       }
-      await this.usersRepo.save(this.usersRepo.create({email, password, role}));
-      return [true];
+      const user = await this.usersRepo.save(
+        this.usersRepo.create({email, password, role})
+      );
+      const verification = await this.verificationRepo.save(
+        this.verificationRepo.create({
+          user
+        })
+      );
+      this.mailService.sendVerificationEmail(user.email, verification.code);
+      return {
+        ok: true
+      };
     } catch (e) {
-      return [false, "Couldn't create account"];
+      return {
+        ok: false,
+        error: "Couldn't create account"
+      };
     }
-
-    // ok
   }
-  async login({
-    email,
-    password
-  }: LoginInput): Promise<{ok: boolean; error?: string; token?: string}> {
-    // find the user with the email
-    // check if the password is correct
-    // make a JWT and give it to the user
+  async login({email, password}: LoginInput): Promise<LoginOutput> {
     try {
-      const user = await this.usersRepo.findOneBy({email});
+      const user = await this.usersRepo.findOne({
+        where: {email},
+        select: ['id', 'password']
+      });
       if (!user) {
         return {
           ok: false,
@@ -67,21 +88,73 @@ export class UsersService {
     }
   }
 
-  async findById(id: number): Promise<User> {
-    return this.usersRepo.findOneBy({id});
+  async findById(id: number): Promise<UserProfileOutput> {
+    try {
+      const user = await this.usersRepo.findOne({where: {id}});
+      if (!user) {
+        throw Error();
+      }
+      return {
+        ok: true,
+        user
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: 'User Not Found'
+      };
+    }
   }
 
   async editProfile(
     id: number,
     {email, password}: EditProfileInput
-  ): Promise<User> {
-    const user = await this.usersRepo.findOneBy({id});
-    if (email) {
-      user.email = email;
+  ): Promise<EditProfileOutput> {
+    try {
+      const user = await this.usersRepo.findOne({where: {id}});
+      if (email) {
+        user.email = email;
+        user.verified = false;
+        const verification = await this.verificationRepo.save(
+          this.verificationRepo.create({user})
+        );
+        this.mailService.sendVerificationEmail(user.email, verification.code);
+      }
+      if (password) {
+        user.password = password;
+      }
+      await this.usersRepo.save(user);
+      return {
+        ok: true
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: 'Could not update profile'
+      };
     }
-    if (password) {
-      user.password = password;
+  }
+
+  async verifyEmail(code: string): Promise<VerifyEmailOutput> {
+    try {
+      const verification = await this.verificationRepo.findOne({
+        where: {code},
+        relations: ['user']
+      });
+      if (verification) {
+        verification.user.verified = true;
+        await this.usersRepo.save(verification.user);
+        await this.verificationRepo.delete(verification.id);
+        return {
+          ok: true
+        };
+      }
+      throw new Error();
+    } catch (error) {
+      return {
+        ok: false,
+        error
+      };
     }
-    return this.usersRepo.save(user);
   }
 }
