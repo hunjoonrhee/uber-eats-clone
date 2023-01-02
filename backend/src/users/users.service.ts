@@ -5,6 +5,7 @@ import {Repository} from 'typeorm';
 import {CreateAccountInput} from './dtos/create-account.dto';
 import {LoginInput} from './dtos/login.dto';
 import {JwtService} from '../jwt/jwt.service';
+import {EditProfileInput} from './dtos/edit-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -68,5 +69,19 @@ export class UsersService {
 
   async findById(id: number): Promise<User> {
     return this.usersRepo.findOneBy({id});
+  }
+
+  async editProfile(
+    id: number,
+    {email, password}: EditProfileInput
+  ): Promise<User> {
+    const user = await this.usersRepo.findOneBy({id});
+    if (email) {
+      user.email = email;
+    }
+    if (password) {
+      user.password = password;
+    }
+    return this.usersRepo.save(user);
   }
 }
