@@ -6,4 +6,4 @@
 /backend/.env.dev
 /backend/.env.test
 /backend/.env.prod
-/backend/dist
+/backend/dist/
