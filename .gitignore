@@ -2,6 +2,7 @@
 /frontend/node_modules/
 /.idea
 /.idea/sonarlint/*
+/.idea/sonarlint/issuestore/*
 /backend/.env.dev
 /backend/.env.test
 /backend/.env.prod
