@@ -30,7 +30,7 @@ export class UsersService {
     role
   }: CreateAccountInput): Promise<CreateAccountOutput> {
     try {
-      const exists = await this.usersRepo.findOneBy({email});
+      const exists = await this.usersRepo.findOne({where: {email}});
       if (exists) {
         return {
           ok: false,
