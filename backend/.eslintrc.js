@@ -16,12 +16,26 @@ module.exports = {
     jest: true
   },
   ignorePatterns: ['.eslintrc.js'],
-  rules: {
-    '@typescript-eslint/interface-name-prefix': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': 'off'
-  }
+  "rules": {
+    "no-return-await": "error",
+    "@typescript-eslint/no-shadow": "off",
+    "@typescript-eslint/interface-name-prefix": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
+    "prettier/prettier": [
+        "error",
+        {
+            "endOfLine": "lf",
+            "jsxBracketSameLine": true,
+            "bracketSpacing": false,
+            "tabWidth": 4,
+            "singleQuote": true,
+            "trailingComma": "es5",
+            "arrowParens": "avoid",
+            "printWidth": 140
+        }
+    ]
+},
+"ignorePatterns": [".eslintrc.js", "**/node_modules", "**/dist"]
 };
