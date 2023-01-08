@@ -8,8 +8,7 @@
 /backend/.env.prod
 /backend/dist/
 /backend/coverage/*
-<<<<<<< HEAD
 backend/dist/tsconfig.build.tsbuildinfo
-backend/.env.*
-=======
->>>>>>> parent of 1895120 (code cleaning, e2e test user module)
+/backend/.env.dev
+/backend/.env.test
+/backend/.env.prod
