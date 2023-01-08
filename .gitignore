@@ -9,3 +9,4 @@
 /backend/dist/
 /backend/coverage/*
 backend/dist/tsconfig.build.tsbuildinfo
+backend/.env.*
