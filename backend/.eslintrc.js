@@ -18,6 +18,8 @@ module.exports = {
   ignorePatterns: ['.eslintrc.js'],
   "rules": {
     "no-return-await": "error",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-shadow": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
