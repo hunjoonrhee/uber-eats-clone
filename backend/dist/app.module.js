@@ -23,7 +23,7 @@ let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(jwt_middleware_1.JwtMiddleware).forRoutes({
             path: '/graphql',
-            method: common_1.RequestMethod.POST,
+            method: common_1.RequestMethod.POST
         });
     }
 };
@@ -33,14 +33,14 @@ AppModule = __decorate([
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
                 autoSchemaFile: true,
-                context: ({ req }) => ({ user: req['user'] }),
+                context: ({ req }) => ({ user: req['user'] })
             }),
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
                 ignoreEnvFile: process.env.NODE_ENV === 'prod',
                 validationSchema: Joi.object({
-                    NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
+                    NODE_ENV: Joi.string().valid('dev', 'prod').required(),
                     DB_HOST: Joi.string().required(),
                     DB_PORT: Joi.string().required(),
                     DB_USERNAME: Joi.string().required(),
@@ -49,8 +49,8 @@ AppModule = __decorate([
                     PRIVATE_KEY: Joi.string().required(),
                     MAILGUN_API_KEY: Joi.string().required(),
                     MAILGUN_DOMAIN_NAME: Joi.string().required(),
-                    MAILGUN_FROM_EMAIL: Joi.string().required(),
-                }),
+                    MAILGUN_FROM_EMAIL: Joi.string().required()
+                })
             }),
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'postgres',
@@ -60,21 +60,21 @@ AppModule = __decorate([
                 password: process.env.DB_PASSWORD,
                 database: process.env.DB_NAME,
                 synchronize: process.env.NODE_NEV !== 'prod',
-                logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
-                entities: [user_entity_1.User, verification_entity_1.Verification],
+                logging: true,
+                entities: [user_entity_1.User, verification_entity_1.Verification]
             }),
             users_module_1.UsersModule,
             jwt_module_1.JwtModule.forRoot({
-                privateKey: process.env.PRIVATE_KEY,
+                privateKey: process.env.PRIVATE_KEY
             }),
             mail_module_1.MailModule.forRoot({
                 apiKey: process.env.MAILGUN_API_KEY,
                 domain: process.env.MAILGUN_DOMAIN_NAME,
-                fromEmail: process.env.MAILGUN_FROM_EMAIL,
-            }),
+                fromEmail: process.env.MAILGUN_FROM_EMAIL
+            })
         ],
         controllers: [],
-        providers: [],
+        providers: []
     })
 ], AppModule);
 exports.AppModule = AppModule;

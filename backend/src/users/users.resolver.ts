@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {Args, Mutation, Query, Resolver} from '@nestjs/graphql';
 import {User} from './entities/user.entity';
 import {UsersService} from './users.service';
@@ -14,6 +14,10 @@ import {EditProfileInput, EditProfileOutput} from './dtos/edit-profile.dto';
 @Resolver(of => User)
 export class UsersResolver {
     constructor(private readonly usersService: UsersService) {}
+    @Query(returns => [User])
+    users(): Promise<User[]> {
+        return null;
+    }
     @Mutation(returns => CreateAccountOutput)
     async createAccount(@Args('input') createAccountInput: CreateAccountInput): Promise<CreateAccountOutput> {
         return this.usersService.createAccount(createAccountInput);

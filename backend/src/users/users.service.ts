@@ -100,7 +100,6 @@ export class UsersService {
             if (email) {
                 user.email = email;
                 user.verified = false;
-                this.verificationRepo.delete({user: {id: user.id}});
                 const verification = await this.verificationRepo.save(this.verificationRepo.create({user}));
                 this.mailService.sendVerificationEmail(user.email, verification.code);
             }
