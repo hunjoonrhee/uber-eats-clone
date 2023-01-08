@@ -9,6 +9,6 @@
 /backend/dist/
 /backend/coverage/*
 backend/dist/tsconfig.build.tsbuildinfo
-/backend/.env.dev
-/backend/.env.test
-/backend/.env.prod
+backend/.env.dev
+backend/.env.prod
+backend/.env.test

@@ -1,8 +1,8 @@
 import {Test, TestingModule} from '@nestjs/testing';
 import {INestApplication} from '@nestjs/common';
+import * as request from 'supertest';
 import {AppModule} from '../src/app.module';
 import {DataSource, Repository} from 'typeorm';
-import * as request from 'supertest';
 import {getRepositoryToken} from '@nestjs/typeorm';
 import {User} from 'src/users/entities/user.entity';
 import {Verification} from 'src/users/entities/verification.entity';
@@ -50,66 +50,74 @@ describe('UserModule (e2e)', () => {
     });
     afterAll(async () => {
         const connection = await testDataSource.initialize();
-        console.log(connection);
         await connection.dropDatabase();
         await connection.destroy();
         app.close();
     });
 
-    describe('CreateAccountInput', () => {
+    describe('createAccount', () => {
         it('should create account', () => {
             return publicTest(`
-                    mutation{
-                    createAccount(
-                      input: {
-                        email:"${testUser.email}",
-                        password: "${testUser.password}",
-                        role:Client
-                      }) {
-                            ok
-                            error
-                        }
-                  }
-                  `)
+        mutation {
+          createAccount(input: {
+            email:"${testUser.email}",
+            password:"${testUser.password}",
+            role:Owner
+          }) {
+            ok
+            error
+          }
+        }
+        `)
                 .expect(200)
                 .expect(res => {
-                    expect(res.body.data.createAccount.ok).toBe(true), expect(res.body.data.createAccount.error).toBe(null);
+                    expect(res.body.data.createAccount.ok).toBe(true);
+                    expect(res.body.data.createAccount.error).toBe(null);
                 });
         });
-        it('should fail if account already exist', () => {
+
+        it('should fail if account already exists', () => {
             return publicTest(`
-                    mutation{
-                    createAccount(
-                      input: {
-                        email:"${testUser.email}",
-                        password: "${testUser.password}",
-                        role:Client
-                      }) {
-                            ok
-                            error
-                        }
-                  }
-                  `)
+          mutation {
+            createAccount(input: {
+              email:"${testUser.email}",
+              password:"${testUser.password}",
+              role:Owner
+            }) {
+              ok
+              error
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
-                    expect(res.body.data.createAccount.ok).toBe(false),
-                        expect(res.body.data.createAccount.error).toEqual('There is a user with that email already');
+                    const {
+                        body: {
+                            data: {
+                                createAccount: {ok, error},
+                            },
+                        },
+                    } = res;
+                    expect(ok).toBe(false);
+                    expect(error).toBe('There is a user with that email already');
                 });
         });
     });
+
     describe('login', () => {
-        it('should login with correct credentials', async () => {
+        it('should login with correct credentials', () => {
             return publicTest(`
-                mutation{
-                    login(input: {
-                        email:"${testUser.email}",
-                        password: "${testUser.password}",
-                    }) {
-                      ok
-                      error
-                      token
-                    }
-                  }`)
+          mutation {
+            login(input:{
+              email:"${testUser.email}",
+              password:"${testUser.password}",
+            }) {
+              ok
+              error
+              token
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -123,18 +131,19 @@ describe('UserModule (e2e)', () => {
                     jwtToken = login.token;
                 });
         });
-        it('should not login with wrong credentials', async () => {
+        it('should not be able to login with wrong credentials', () => {
             return publicTest(`
-                mutation{
-                    login(input: {
-                        email:"${testUser.email}",
-                        password: "xxx",
-                    }) {
-                      ok
-                      error
-                      token
-                    }
-                  }`)
+          mutation {
+            login(input:{
+              email:"${testUser.email}",
+              password:"xxx",
+            }) {
+              ok
+              error
+              token
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -143,29 +152,30 @@ describe('UserModule (e2e)', () => {
                         },
                     } = res;
                     expect(login.ok).toBe(false);
-                    expect(login.error).toEqual('Wrong password');
-                    expect(login.token).toEqual(null);
+                    expect(login.error).toBe('Wrong password');
+                    expect(login.token).toBe(null);
                 });
         });
     });
+
     describe('userProfile', () => {
         let userId: number;
         beforeAll(async () => {
             const [user] = await usersRepository.find();
             userId = user.id;
         });
-        it('should see a user profile', () => {
+        it("should see a user's profile", () => {
             return privateTest(`
-                    {
-                        userProfile(userId: ${userId}){
-                        ok
-                        error
-                          user {
-                          id
-                        }
-                      }
-                    }
-                    `)
+          {
+            userProfile(userId:${userId}){
+              ok
+              error
+              user {
+                id
+              }
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -181,21 +191,21 @@ describe('UserModule (e2e)', () => {
                     } = res;
                     expect(ok).toBe(true);
                     expect(error).toBe(null);
-                    expect(id).toEqual(userId);
+                    expect(id).toBe(userId);
                 });
         });
-        it('should not find a user profile', () => {
+        it('should not find a profile', () => {
             return privateTest(`
-                    {
-                        userProfile(userId: 22){
-                        ok
-                        error
-                          user {
-                          id
-                        }
-                      }
-                    }
-                    `)
+          {
+            userProfile(userId:666){
+              ok
+              error
+              user {
+                id
+              }
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -211,6 +221,7 @@ describe('UserModule (e2e)', () => {
                 });
         });
     });
+
     describe('me', () => {
         it('should find my profile', () => {
             return privateTest(`
@@ -234,12 +245,12 @@ describe('UserModule (e2e)', () => {
         });
         it('should not allow logged out user', () => {
             return publicTest(`
-                    {
-                        me {
-                          email
-                        }
-                      }
-                    `)
+          {
+            me {
+              email
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -250,19 +261,20 @@ describe('UserModule (e2e)', () => {
                 });
         });
     });
+
     describe('editProfile', () => {
-        const NEW_EMAIL = 'nico@las.com';
+        const NEW_EMAIL = 'nico@new.com';
         it('should change email', () => {
             return privateTest(`
-                    mutation {
-                        editProfile (input: {
-                          email: "${NEW_EMAIL}"
-                        }) {
-                          ok
-                          error
-                        }
-                      }
-                    `)
+            mutation {
+              editProfile(input:{
+                email: "${NEW_EMAIL}"
+              }) {
+                ok
+                error
+              }
+            }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -276,14 +288,14 @@ describe('UserModule (e2e)', () => {
                     expect(error).toBe(null);
                 });
         });
-        it('should have the new email', () => {
+        it('should have new email', () => {
             return privateTest(`
-                    {
-                        me {
-                        email
-                        }
-                    }
-                    `)
+          {
+            me {
+              email
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -293,10 +305,11 @@ describe('UserModule (e2e)', () => {
                             },
                         },
                     } = res;
-                    expect(email).toEqual(NEW_EMAIL);
+                    expect(email).toBe(NEW_EMAIL);
                 });
         });
     });
+
     describe('verifyEmail', () => {
         let verificationCode: string;
         beforeAll(async () => {
@@ -305,16 +318,15 @@ describe('UserModule (e2e)', () => {
         });
         it('should verify email', () => {
             return publicTest(`
-                    mutation {
-                        verifyEmail (
-                          input: {
-                          code: "${verificationCode}"
-                          }){
-                          ok
-                          error
-                        }
-                      }
-                    `)
+          mutation {
+            verifyEmail(input:{
+              code:"${verificationCode}"
+            }){
+              ok
+              error
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -328,18 +340,17 @@ describe('UserModule (e2e)', () => {
                     expect(error).toBe(null);
                 });
         });
-        it('should fail on the wrong verification code', () => {
+        it('should fail on verification code not found', () => {
             return publicTest(`
-                    mutation {
-                        verifyEmail (
-                          input: {
-                          code: "xxx"
-                          }){
-                          ok
-                          error
-                        }
-                      }
-                    `)
+          mutation {
+            verifyEmail(input:{
+              code:"xxxxx"
+            }){
+              ok
+              error
+            }
+          }
+        `)
                 .expect(200)
                 .expect(res => {
                     const {
@@ -350,7 +361,7 @@ describe('UserModule (e2e)', () => {
                         },
                     } = res;
                     expect(ok).toBe(false);
-                    expect(error).toEqual('Verification not found.');
+                    expect(error).toBe('Verification not found.');
                 });
         });
     });
