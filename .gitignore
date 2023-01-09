@@ -6,7 +6,7 @@
 /backend/.env.dev
 /backend/.env.test
 /backend/.env.prod
-/backend/dist/
+/backend/dist/*
 /backend/coverage/*
 backend/dist/tsconfig.build.tsbuildinfo
 backend/.env.dev
