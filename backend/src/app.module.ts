@@ -13,6 +13,7 @@ import {MailModule} from './mail/mail.module';
 import {Restaurant} from './restaurants/entities/restaurant.entity';
 import {Category} from './restaurants/entities/category.entity';
 import {RestaurantsModule} from './restaurants/restaurants.module';
+import {AuthModule} from './auth/auth.module';
 
 @Module({
     imports: [
@@ -49,6 +50,7 @@ import {RestaurantsModule} from './restaurants/restaurants.module';
             logging: process.env.NODE_ENV !== 'prod' && process.env.NODE_ENV !== 'test',
             entities: [User, Verification, Restaurant, Category],
         }),
+        AuthModule,
         UsersModule,
         RestaurantsModule,
         JwtModule.forRoot({
