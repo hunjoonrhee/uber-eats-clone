@@ -17,20 +17,21 @@ export class MailService {
 
         emailVars.forEach(eVar => form.append(`v:${eVar.key}`, eVar.value));
         try {
-            await got.post(`https://api.mailgun.net/v3/${this.options.domain}/messages`, {
+            const response = await got.post(`https://api.mailgun.net/v3/${this.options.domain}/messages`, {
                 headers: {
                     Authorization: `Basic ${Buffer.from(`api:${this.options.apiKey}`).toString('base64')}`,
                 },
                 body: form,
             });
+            console.log(response.body);
             return true;
         } catch (e) {
             return false;
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     sendVerificationEmail(email: string, code: string) {
+        console.log(email, code);
         this.sendEmail('Verify Your Email', 'verify-email', [
             {key: 'code', value: code},
             {key: 'username', value: email},
