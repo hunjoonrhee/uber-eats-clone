@@ -15,6 +15,11 @@ import {RestaurantsInput, RestaurantsOutput} from './dtos/restaurants.dto';
 import {RestaurantInput} from './dtos/restaurant.dto';
 import {RestaurantOutput} from './dtos/restaurant.dto';
 import {SearchRestaurantInput, SearchRestaurantOutput} from './dtos/search-restaurant.dto';
+import {CreateDishInput, CreateDishOutput} from './dtos/create-dish.dto';
+import {Dish} from './entities/dish.entity';
+import {EditDishInput, EditDishOutput} from './dtos/edit.dish.dto';
+import {DeleteDishInput, DeleteDishOutput} from './dtos/delete-dish.dto';
+import {DEFAULT_FACTORY_CLASS_METHOD_KEY} from '@nestjs/common/module-utils/constants';
 
 @Injectable()
 export class RestaurantsService {
@@ -22,7 +27,9 @@ export class RestaurantsService {
         @InjectRepository(Restaurant)
         private readonly restaurantRepository: Repository<Restaurant>,
         // @InjectRepository(Category)
-        private readonly categoryRepository: CategoryRepository
+        private readonly categoryRepository: CategoryRepository,
+        @InjectRepository(Dish)
+        private readonly dishRepository: Repository<Dish>
     ) {}
 
     async PrerequisitesForEditingOrDeletingRestaurant(restaurantId: number, owner: User): Promise<CoreOutput> {
@@ -164,7 +171,7 @@ export class RestaurantsService {
 
     async getRestaurant({restaurantId}: RestaurantInput): Promise<RestaurantOutput> {
         try {
-            const restaurant = await this.restaurantRepository.findOne({where: {id: restaurantId}});
+            const restaurant = await this.restaurantRepository.findOne({where: {id: restaurantId}, relations: ['menu']});
             if (!restaurant) {
                 return {
                     ok: false,
@@ -206,6 +213,87 @@ export class RestaurantsService {
             return {
                 ok: false,
                 error: 'Could not find restaurants',
+            };
+        }
+    }
+
+    async createDish(owner: User, createDishInput: CreateDishInput): Promise<CreateDishOutput> {
+        try {
+            const restaurant = await this.restaurantRepository.findOne({where: {id: createDishInput.restaurantId}});
+            if (!restaurant) {
+                return {
+                    ok: false,
+                    error: 'Restaurant not found',
+                };
+            }
+            if (owner.id !== restaurant.ownerId) {
+                return {
+                    ok: false,
+                    error: 'You can not do that, because you are not the owner of this restaurant',
+                };
+            }
+            await this.dishRepository.save(this.dishRepository.create({...createDishInput, restaurant}));
+            return {ok: true};
+        } catch {
+            return {
+                ok: false,
+                error: 'Could not create dish',
+            };
+        }
+    }
+    async editDish(owner: User, editDishInput: EditDishInput): Promise<EditDishOutput> {
+        try {
+            const dish = await this.dishRepository.findOne({where: {id: editDishInput.dishId}, relations: ['restaurant']});
+            if (!dish) {
+                return {
+                    ok: false,
+                    error: 'Dish not found',
+                };
+            }
+            if (owner.id !== dish.restaurant.ownerId) {
+                return {
+                    ok: false,
+                    error: 'You can not do that, because you are not the owner of this restaurant',
+                };
+            }
+            await this.dishRepository.save([
+                {
+                    id: editDishInput.dishId,
+                    ...editDishInput,
+                },
+            ]);
+            return {ok: true};
+        } catch {
+            return {
+                ok: false,
+                error: 'Could not edit dish',
+            };
+        }
+    }
+
+    async deleteDish(owner: User, {dishId}: DeleteDishInput): Promise<DeleteDishOutput> {
+        try {
+            const dish = await this.dishRepository.findOne({where: {id: dishId}, relations: ['restaurant']});
+            if (!dish) {
+                return {
+                    ok: false,
+                    error: 'Dish not found',
+                };
+            }
+
+            if (owner.id !== dish.restaurant.ownerId) {
+                return {
+                    ok: false,
+                    error: 'You can not do that, because you are not the owner of this restaurant',
+                };
+            }
+
+            await this.dishRepository.delete(dishId);
+            return {ok: true};
+        } catch {
+            return {
+                ok: false,
+                error: 'Could not delete dish',
             };
         }
     }
