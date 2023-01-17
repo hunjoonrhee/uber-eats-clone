@@ -19,7 +19,6 @@ import {CreateDishInput, CreateDishOutput} from './dtos/create-dish.dto';
 import {Dish} from './entities/dish.entity';
 import {EditDishInput, EditDishOutput} from './dtos/edit.dish.dto';
 import {DeleteDishInput, DeleteDishOutput} from './dtos/delete-dish.dto';
-import {DEFAULT_FACTORY_CLASS_METHOD_KEY} from '@nestjs/common/module-utils/constants';
 
 @Injectable()
 export class RestaurantsService {
