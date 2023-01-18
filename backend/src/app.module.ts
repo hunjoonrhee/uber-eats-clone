@@ -23,8 +23,15 @@ import {OrderItem} from './orders/entities/order-item.entity';
     imports: [
         GraphQLModule.forRoot<ApolloDriverConfig>({
             driver: ApolloDriver,
+            installSubscriptionHandlers: true,
             autoSchemaFile: true,
-            context: ({req}) => ({user: req['user']}),
+            context: ({req, connection}) => {
+                if (req) {
+                    return {user: req['user']};
+                } else {
+                    console.log('CONNECTION', connection);
+                }
+            },
         }),
         ConfigModule.forRoot({
             isGlobal: true,
