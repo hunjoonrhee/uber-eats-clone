@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Dish} from '../restaurants/entities/dish.entity';
 import {Restaurant} from '../restaurants/entities/restaurant.entity';
@@ -10,6 +10,9 @@ import {OrderItem} from './entities/order-item.entity';
 import {Order, OrderStatus} from './entities/order.entity';
 import {GetOrderInput, GetOrderOutput} from './dtos/get-order.dto';
 import {EditOrderInput, EditOrderOutput} from './dtos/edit-order.dto';
+import {NEW_COOKED_ORDER, NEW_ORDER_UPDATE, NEW_PENDING_ORDER, PUB_SUB} from 'src/common/common.constants';
+import {PubSub} from 'graphql-subscriptions';
+import {TakeOrderInput, TakeOrderOutput} from './dtos/take-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -17,7 +20,8 @@ export class OrdersService {
         @InjectRepository(Order) private readonly ordersRepo: Repository<Order>,
         @InjectRepository(Restaurant) private readonly restaurantsRepo: Repository<Restaurant>,
         @InjectRepository(Dish) private readonly dishesRepo: Repository<Dish>,
-        @InjectRepository(OrderItem) private readonly orderItemsRepo: Repository<OrderItem>
+        @InjectRepository(OrderItem) private readonly orderItemsRepo: Repository<OrderItem>,
+        @Inject(PUB_SUB) private readonly pubSub: PubSub
     ) {}
 
     async createOrder(customer: User, {restaurantId, items}: CreateOrderInput): Promise<CreateOrderOutput> {
@@ -54,18 +58,23 @@ export class OrdersService {
                             }
                         }
                     }
-                    const orderItem = await this.orderItemsRepo.save(
-                        this.orderItemsRepo.create({
-                            dish,
-                            options: item.options,
-                        })
-                    );
-                    orderItems.push(orderItem);
                 }
                 orderFinalPrice = orderFinalPrice + dishFinalPrice;
+                const orderItem = await this.orderItemsRepo.save(
+                    this.orderItemsRepo.create({
+                        dish,
+                        options: item.options,
+                    })
+                );
+                orderItems.push(orderItem);
             }
-            await this.ordersRepo.save(this.ordersRepo.create({customer, restaurant, total: orderFinalPrice, items: orderItems}));
-            return {ok: true};
+            const order = await this.ordersRepo.save(
+                this.ordersRepo.create({customer, restaurant, total: orderFinalPrice, items: orderItems})
+            );
+            await this.pubSub.publish(NEW_PENDING_ORDER, {pendingOrders: {order, ownerId: restaurant.ownerId}});
+            return {
+                ok: true,
+            };
         } catch {
             return {
                 ok: false,
@@ -186,12 +195,17 @@ export class OrdersService {
                     error: 'You can not do that',
                 };
             }
-            await this.ordersRepo.save([
-                {
-                    id: orderId,
-                    status,
-                },
-            ]);
+            await this.ordersRepo.save({
+                id: orderId,
+                status,
+            });
+            const newOrder = {...order, status};
+            if (user.role === UserRole.Owner) {
+                if (status === OrderStatus.Cooked) {
+                    await this.pubSub.publish(NEW_COOKED_ORDER, {cookedOrders: newOrder});
+                }
+            }
+            await this.pubSub.publish(NEW_ORDER_UPDATE, {orderUpdates: newOrder});
             return {
                 ok: true,
             };
@@ -199,6 +213,36 @@ export class OrdersService {
             return {
                 ok: false,
                 error: 'Could not edit order',
+            };
+        }
+    }
+    async takeOrder(driver: User, {id: orderId}: TakeOrderInput): Promise<TakeOrderOutput> {
+        try {
+            const order = await this.ordersRepo.findOne({where: {id: orderId}});
+            if (!order) {
+                return {
+                    ok: false,
+                    error: 'Order was not found',
+                };
+            }
+            if (order.driver) {
+                return {
+                    ok: false,
+                    error: 'This order already has a driver',
+                };
+            }
+            await this.ordersRepo.save({
+                id: orderId,
+                driver,
+            });
+            await this.pubSub.publish(NEW_ORDER_UPDATE, {orderUpdates: {...order, driver}});
+            return {
+                ok: true,
+            };
+        } catch {
+            return {
+                ok: false,
+                error: 'Could not take order',
             };
         }
     }
