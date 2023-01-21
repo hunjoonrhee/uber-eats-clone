@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {Inject} from '@nestjs/common';
 import {Args, Mutation, Resolver, Query, Subscription} from '@nestjs/graphql';
 import {AuthUserDecorator} from 'src/auth/auth-user.decorator';
