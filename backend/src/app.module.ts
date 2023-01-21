@@ -29,6 +29,7 @@ import {CommonModule} from './common/common.module';
             subscriptions: {
                 'subscriptions-transport-ws': {
                     onConnect: connectionParams => {
+                        console.log('CONNECTIONPARAMS', connectionParams);
                         return {token: connectionParams['x-jwt']};
                     },
                 },
