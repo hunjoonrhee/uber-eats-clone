@@ -1,3 +1,3 @@
 export interface JwtInterfaces {
-  privateKey: string;
+    privateKey: string;
 }

@@ -4,8 +4,6 @@ import {User} from './entities/user.entity';
 import {UsersService} from './users.service';
 import {CreateAccountInput, CreateAccountOutput} from './dtos/create-account.dto';
 import {LoginInput, LoginOutput} from './dtos/login.dto';
-import {AuthGuard} from '../auth/auth.guard';
-import {UseGuards} from '@nestjs/common';
 import {AuthUserDecorator} from '../auth/auth-user.decorator';
 import {UserProfileInput, UserProfileOutput} from './dtos/use-profile.dto';
 import {VerifyEmailInput, VerifyEmailOutput} from './dtos/verify-email.dto';

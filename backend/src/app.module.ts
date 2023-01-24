@@ -7,7 +7,6 @@ import * as Joi from 'joi';
 import {UsersModule} from './users/users.module';
 import {User} from './users/entities/user.entity';
 import {JwtModule} from './jwt/jwt.module';
-import {JwtMiddleware} from './jwt/jwt.middleware';
 import {Verification} from './users/entities/verification.entity';
 import {MailModule} from './mail/mail.module';
 import {Restaurant} from './restaurants/entities/restaurant.entity';

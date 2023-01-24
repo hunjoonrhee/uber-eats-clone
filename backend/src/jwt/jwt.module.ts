@@ -6,17 +6,17 @@ import {CONFIG_OPTIONS} from '../common/common.constants';
 @Module({})
 @Global()
 export class JwtModule {
-  static forRoot(options: JwtInterfaces): DynamicModule {
-    return {
-      module: JwtModule,
-      exports: [JwtService],
-      providers: [
-        {
-          provide: CONFIG_OPTIONS,
-          useValue: options
-        },
-        JwtService
-      ]
-    };
-  }
+    static forRoot(options: JwtInterfaces): DynamicModule {
+        return {
+            module: JwtModule,
+            exports: [JwtService],
+            providers: [
+                {
+                    provide: CONFIG_OPTIONS,
+                    useValue: options,
+                },
+                JwtService,
+            ],
+        };
+    }
 }
