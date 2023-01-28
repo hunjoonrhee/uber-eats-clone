@@ -7,6 +7,6 @@ export class RestaurantsInput extends PaginationInput {}
 
 @ObjectType()
 export class RestaurantsOutput extends PaginationOutput {
-    @Field(tyape => [Restaurant], {nullable: true})
+    @Field(type => [Restaurant], {nullable: true})
     results?: Restaurant[];
 }

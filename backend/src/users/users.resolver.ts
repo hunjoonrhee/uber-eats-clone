@@ -30,7 +30,7 @@ export class UsersResolver {
     }
 
     @Role(['Any'])
-    @Query(returns => UserProfileOutput)
+    @Query(returns => UserProfileOutput) 
     async userProfile(@Args() userProfileInput: UserProfileInput): Promise<UserProfileOutput> {
         return this.usersService.findById(userProfileInput.userId);
     }

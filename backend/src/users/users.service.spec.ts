@@ -64,7 +64,7 @@ describe('UserService', () => {
                 id: 1,
                 email: 'testingEmail',
             });
-            const result = await service.createAccount(createAccountArgs);
+            const result = await service.createAccount(createAccountArgs); 
             expect(result).toMatchObject({
                 ok: false,
                 error: 'There is a user with that email already',
