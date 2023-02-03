@@ -135,6 +135,9 @@ export class RestaurantsService {
                 where: {category: {id: category.id}},
                 take: 5,
                 skip: (page - 1) * 5,
+                order: {
+                    isPromoted: 'DESC'
+                    }
             });
             category.restaurants = restaurants;
             const totalResults = await this.countRestaurants(category);
@@ -153,7 +156,13 @@ export class RestaurantsService {
 
     async getAllRestaurants({page}: RestaurantsInput): Promise<RestaurantsOutput> {
         try {
-            const [results, totalResults] = await this.restaurantRepository.findAndCount({skip: (page - 1) * 5, take: 5});
+            const [results, totalResults] = await this.restaurantRepository.findAndCount({
+                skip: (page - 1) * 5, 
+                take: 5, 
+                order: {
+                isPromoted: 'DESC'
+                }
+            });
             return {
                 ok: true,
                 results,
