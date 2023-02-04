@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, ApolloProvider, gql, makeVar } from '@apollo/client';
+import { ApolloClient, InMemoryCache, makeVar } from '@apollo/client';
 
 export const isLoggedInVar = makeVar(false)
 
@@ -10,7 +10,7 @@ export const client = new ApolloClient({
                 fields: {
                     isLoggedIn: {
                         read(){
-                            return isLoggedInVar;
+                            return isLoggedInVar();
                         }
                     }
                 }

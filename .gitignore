@@ -7,4 +7,5 @@
 /backend/.env.test
 /backend/.env.prod
 /backend/dist/
+/backend/dist/app.module.d.ts
 /backend/coverage/*
