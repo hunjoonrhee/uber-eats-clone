@@ -9,3 +9,4 @@
 /backend/dist/
 /backend/dist/app.module.d.ts
 /backend/coverage/*
+node_modules

@@ -11,6 +11,7 @@
     "@types/node": "^16.18.10",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
+    "apollo": "^2.11.1",
     "autoprefixer": "^10.4.13",
     "graphql": "^16.6.0",
     "postcss": "^8.4.21",
@@ -26,6 +27,7 @@
   "scripts": {
     "tailwind:build": "npx tailwindcss-cli@latest build -i ./src/styles/tailwind.css -o ./src/styles/styles.css",
     "start": "npm run tailwind:build & react-scripts start",
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' 'src/**/*.tsx' --write",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -47,5 +49,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-router-dom": "^5.3.3",
+    "prettier": "^2.8.3"
   }
 }
