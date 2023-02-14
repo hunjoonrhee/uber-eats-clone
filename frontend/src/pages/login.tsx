@@ -1,11 +1,16 @@
 import { gql, useMutation } from '@apollo/client';
 import React from 'react';
+import Helmet from 'react-helmet';
 import { useForm } from 'react-hook-form';
 import { FormError } from '../components/form-error';
 import {
   LoginMutation,
   LoginMutationVariables
 } from '../__generated__/graphql';
+import uberLogo from '../images/logo.svg';
+import { Button } from '../components/button';
+import { Link } from 'react-router-dom';
+import { isLoggedInVar } from '../apollo';
 
 const LOGIN_MUTATION = gql`
   mutation login($loginInput: LoginInput!) {
@@ -27,14 +32,17 @@ export function Login() {
     register,
     getValues,
     handleSubmit,
-    formState: { errors }
-  } = useForm<ILoginForm>();
+    formState: { errors, isValid }
+  } = useForm<ILoginForm>({
+    mode: 'onChange'
+  });
   const onCompleted = (data: LoginMutation) => {
     const {
       login: { ok, token }
     } = data;
     if (ok) {
       console.log(token);
+      isLoggedInVar(true);
     }
   };
   const [loginMutation, { data: loginMutationResult, loading }] = useMutation<
@@ -57,25 +65,34 @@ export function Login() {
     }
   };
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-800">
-      <div className="bg-white w-full max-w-lg pt-8 pb-7  rounded-lg text-center">
-        <h3 className="text-3xl text-gray-800"> Log In</h3>
+    <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
+      <Helmet>
+        <title> Login | Uber Eats </title>
+      </Helmet>
+      <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
+        <img src={uberLogo} className="w-52 mb-10" />
+        <h4 className="w-full font-medium text-left text-3xl mb-5">
+          Welcome back
+        </h4>
         <form
-          className="grid gap-3 mt-5 px-5"
+          className="grid gap-3 mt-5 mb-5 w-full"
           onSubmit={handleSubmit(onSubmit)}
         >
           <input
             {...register('email', {
               required: 'Email is required',
-              pattern: /^[A-Za-z0-9._%+-]+@$/
+              pattern: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
             })}
             type="email"
             name="email"
             placeholder="Email"
-            className="input mb-3"
+            className="input"
           />
           {errors.email?.message && (
             <FormError errorMessage={errors.email?.message} />
+          )}
+          {errors.email?.type === 'pattern' && (
+            <FormError errorMessage={'Please enter an valid email'} />
           )}
           <input
             {...register('password', {
@@ -93,13 +110,17 @@ export function Login() {
           {errors.password?.type === 'minLength' && (
             <FormError errorMessage={'Password must be more than 10 chars.'} />
           )}
-          <button className="btn mt-3">
-            {loading ? 'Loading...' : 'Log In'}
-          </button>
+          <Button canClick={isValid} loading={loading} actionText={'Log In'} />
           {loginMutationResult?.login.error && (
             <FormError errorMessage={loginMutationResult.login.error} />
           )}
         </form>
+        <div>
+          New to Uber?{' '}
+          <Link to="/create-account" className="text-lime-600 hover:underline">
+            Create an Account
+          </Link>
+        </div>
       </div>
     </div>
   );
