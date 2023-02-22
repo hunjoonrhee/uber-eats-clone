@@ -1,43 +1,49 @@
 {
-    "workbench.colorTheme": "Visual Studio Dark",
-    "tabnine.experimentalAutoImports": true,
-     "workbench.iconTheme": "vscode-icons",
-    "files.autoSave": "onFocusChange",
-    "files.eol": "\n",
-    "eslint.codeActionsOnSave.rules": [
-        "source.fixAll",
-        "source.fixAll.eslint",
-        ".eslintrc.js"
-    ],
-    "eslint.validate": ["javascript"],
-    "eslint.format.enable": true,
-    "eslint.lintTask.enable": true,
-    "eslint.packageManager": "npm",
-    "eslint.debug": true,
-    "eslint.options": {},
-    "debug.javascript.autoAttachFilter": "onlyWithFlag",
-    "files.autoSaveDelay": 1000,
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true,
-        "source.fixAll.eslint": true
-    },
-    "terminal.integrated.defaultProfile.windows": "Git Bash",
-    "gitlens.gitCommands.skipConfirmations": [
+  "workbench.colorTheme": "Visual Studio Dark",
+  "tabnine.experimentalAutoImports": true,
+  "workbench.iconTheme": "vscode-icons",
+  "files.autoSave": "onFocusChange",
+  "files.eol": "\n",
+  "eslint.codeActionsOnSave.rules": [
+    "source.fixAll",
+    "source.fixAll.eslint",
+    ".eslintrc.js"
+  ],
+  "eslint.validate": ["javascript"],
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.packageManager": "npm",
+  "eslint.debug": true,
+  "eslint.options": {},
+  "debug.javascript.autoAttachFilter": "onlyWithFlag",
+  "files.autoSaveDelay": 1000,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.fixAll.eslint": true
+  },
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "gitlens.gitCommands.skipConfirmations": [
     "fetch:command",
     "stash-apply:command",
     "switch:command"
-    ],
-    "cSpell.language": "en,de-DE",
-    "[json]": {
-        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-        "editor.formatOnPaste": false, // required
-        "editor.formatOnType": false, // required
-        "editor.formatOnSave": true, // optional
-        "editor.formatOnSaveMode": "file", // required to format on save
-        "editor.codeActionsOnSave": {
-            "source.fixAll.eslint": true
-        },
-    },
-    "npm.keybindingsChangedWarningShown": true,
-    "diffEditor.ignoreTrimWhitespace": false,
+  ],
+  "cSpell.language": "en,de-DE",
+  "[json]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.formatOnPaste": false, // required
+    "editor.formatOnType": false, // required
+    "editor.formatOnSave": true, // optional
+    "editor.formatOnSaveMode": "file", // required to format on save
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
+  "npm.keybindingsChangedWarningShown": true,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

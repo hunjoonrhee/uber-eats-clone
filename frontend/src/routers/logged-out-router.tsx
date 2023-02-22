@@ -1,14 +1,23 @@
 import React from 'react';
-import { isLoggedInVar } from '../apollo';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Login } from '../pages/login';
+import { CreateAccount } from '../pages/create-account';
+import { NotFound } from '../pages/404';
 
 export const LoggedOutRouter = () => {
-    const onClick = () => {
-        isLoggedInVar(true);
-    }
-    return (
-        <div>
-            <h1>Logged Out</h1>
-            <button onClick={onClick}>Click to login</button>
-        </div>
-    )
-}
+  return (
+    <Router>
+      <Switch>
+        <Route path="/create-account">
+          <CreateAccount />
+        </Route>
+        <Route path="/" exact>
+          <Login />
+        </Route>
+        <Route>
+          <NotFound />
+        </Route>
+      </Switch>
+    </Router>
+  );
+};
